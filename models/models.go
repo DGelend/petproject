@@ -141,5 +141,5 @@ type Message struct {
 // }
 
 type BotSender interface {
-	SendMessage(m Message, id int64) error
+	SendMessage(m Message, id int64)
 }

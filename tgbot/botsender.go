@@ -13,9 +13,9 @@ type SystemMsg struct {
 	Send models.BotSender
 }
 
-func NewSender(send models.BotSender) *SystemMsg {
-	return &SystemMsg{Send: send}
-}
+// func NewSender(send models.BotSender) *SystemMsg {
+// 	return &SystemMsg{Send: send}
+// }
 
 // создаем InLine клавиатуру
 func CreateInlineKeyBoad(m models.Message) tgbotapi.InlineKeyboardMarkup {
@@ -89,7 +89,7 @@ func CreateKeyBoad(m models.Message) tgbotapi.ReplyKeyboardMarkup {
 }
 
 // Создаем сообщение для бота
-func (s *MytgSend) SendMessage(m models.Message, id int64) error {
+func (s *MytgSend) SendMessage(m models.Message, id int64) {
 	msg := tgbotapi.NewMessage(id, m.MessageText)
 	if len(m.Buttons) == 0 {
 		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -105,7 +105,6 @@ func (s *MytgSend) SendMessage(m models.Message, id int64) error {
 	}
 	msg.ParseMode = "HTML"
 	sendmessanges <- msg
-	return nil
 }
 
 // при необходимости создаем несколько рядов обчных кнопок

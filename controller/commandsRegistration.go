@@ -400,11 +400,13 @@ func regOkvedlistProcess(id int64) models.OKVED {
 	var okv models.OKVED
 	parts, err := serv.sessions.Repository.GetOKVEDpart()
 	if err != nil {
-		fmt.Println(err)
+		ErrSessionOut(id)
+		//fmt.Println(err)
 	}
 	OKVEDs, err := serv.sessions.Repository.GetOKVEDs()
 	if err != nil {
-		fmt.Println(err)
+		ErrSessionOut(id)
+		//fmt.Println(err)
 	}
 	var part, head string
 	var OKVEDSeach []models.OKVED
@@ -474,7 +476,8 @@ LOOPFOR:
 	//Второй этап выбираем общеий ОКВЭД формата две цифры внутри выбранного раздела
 	parts, err = serv.sessions.Repository.GetOKVEDhead1(part)
 	if err != nil {
-		fmt.Println(err)
+		ErrSessionOut(id)
+		//fmt.Println(err)
 	}
 	bs = nil
 	m.MessageText = `Выберете подходящий варинт используя кнопки:
@@ -527,7 +530,8 @@ LOOPFOR2:
 	//Третий этап выбираем общеий ОКВЭД формата три цифры внутри выбранного раздела
 	parts, err = serv.sessions.Repository.GetOKVEDhead2(part, head)
 	if err != nil {
-		fmt.Println(err)
+		ErrSessionOut(id)
+		//fmt.Println(err)
 	}
 	bs = nil
 	m.MessageText = `Выберете подходящий варинт используя кнопки:
@@ -581,7 +585,8 @@ LOOPFOR3:
 	//fmt.Println("Это head!!!!", head)
 	parts, err = serv.sessions.Repository.GetOKVEDhead3(part, head)
 	if err != nil {
-		fmt.Println(err)
+		ErrSessionOut(id)
+		//fmt.Println(err)
 	}
 	bs = nil
 	m.MessageText = `Выберете подходящий варинт используя кнопки:

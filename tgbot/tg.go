@@ -1,8 +1,8 @@
 package tgbot
 
 import (
-	"log"
 	"os"
+	"something/logbot"
 	"something/models"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -15,7 +15,8 @@ func StartTg(resp chan models.MessageResponse) {
 	sendmessanges = make(chan tgbotapi.Chattable, 100)
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TG_TOKEN"))
 	if err != nil {
-		log.Panic(err)
+		logbot.Log.Error("Критисеская ошибка при подключении к телеграм", "error", err)
+		panic(err)
 	}
 	bot.Debug = false
 	// пишем в лог название бота

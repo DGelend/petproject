@@ -66,6 +66,7 @@ func updateOKVED(url string) error {
 	var add, del, update int
 	resp, err := http.Get(url)
 	if err != nil {
+		TgSessions.log.Error("Ошибка при попытке скачать список ОКВЭД", "err", err)
 		return err
 	}
 	defer resp.Body.Close()
@@ -76,7 +77,8 @@ func updateOKVED(url string) error {
 	//fmt.Println(str)
 	old, err := TgSessions.Repository.GetOKVED()
 	if err != nil {
-		fmt.Println(err)
+		TgSessions.log.Error("Ошибка при получении кодов ОКВЭД из репозитория", "err", err)
+		return err
 	}
 	//fmt.Println("длинна олда равна ", len(old))
 	reader := bufio.NewReader(strings.NewReader(str))
@@ -85,7 +87,8 @@ func updateOKVED(url string) error {
 		var o models.OKVED
 		if err != nil {
 			if err.Error() != "EOF" {
-				fmt.Printf("ошибка чтения: %v\n", err)
+				TgSessions.log.Error("Ошибка чтения списка кодов ОКВЭД", "err", err)
+				return err
 			}
 			break
 		}

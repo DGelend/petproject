@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"log/slog"
 	"something/logbot"
 	"something/models"
@@ -31,9 +30,11 @@ func Multiplexmassage(ch chan models.MessageResponse) {
 		if !serv.sessions.Check(u.FromId) {
 			err := serv.sessions.Add(u.FromId)
 			if err != nil {
-				log.Panic(err)
+				ErrSessionAdd(u.FromId)
+				//log.Panic(err)
+			} else {
+				go StartWork(u.FromId)
 			}
-			go StartWork(u.FromId)
 		} else {
 			serv.sessions.UpdateTimeUpdate(u.FromId)
 			serv.sessions.Session[u.FromId].Inchan <- u
@@ -53,21 +54,21 @@ func RunHelp(id int64) {
 }
 
 func WaitComand(id int64) {
-	var m, m1, m2 models.Message
+	var m, m1 models.Message
 	m.MessageText = `Ожидаю команду. Команда начинается с "/". Для вывода всех доступных Вам команд - введите /help`
 	for u := range serv.sessions.Session[id].Inchan {
 		if u.Command != "" {
 			switch strings.ToLower(u.Command) {
 			case "help":
 				RunHelp(id)
-				m2.MessageText = "ожидаю новую команду команду /help - список всех команд"
-				serv.sessions.Tgsend.Send.SendMessage(m2, id)
+				//m2.MessageText = "ожидаю новую команду команду /help - список всех команд"
+				//serv.sessions.Tgsend.Send.SendMessage(m2, id)
 				continue
 			case "userinfo":
 				user := serv.sessions.Session[id].User
 				StartChangeUserInfo(&user, id, false)
-				m2.MessageText = "ожидаю новую команду команду /help - список всех команд"
-				serv.sessions.Tgsend.Send.SendMessage(m2, id)
+				//m2.MessageText = "ожидаю новую команду команду /help - список всех команд"
+				//serv.sessions.Tgsend.Send.SendMessage(m2, id)
 				continue
 			default:
 				m1.MessageText = "Неизвестная команда. Для вывода всех доступных Вам команд - введите /help"
@@ -112,6 +113,7 @@ func StartWork(id int64) {
 // показывает информацию пользователя и запускает процесс изменеия информации
 func StartChangeUserInfo(user *models.User, id int64, newuser bool) {
 	var m models.Message
+	var err error
 	m.InlineKB = true
 	m.MessageText = "Проверьте корректность данных:\n"
 	m.MessageText += user.ShowUserInfo()
@@ -132,10 +134,16 @@ LOOPFOR:
 		case "да":
 			serv.sessions.UpdateSessionUserData(id, user)
 			if newuser {
-				serv.sessions.Repository.SaveUser(user)
+				err = serv.sessions.Repository.SaveUser(user)
+				if err != nil {
+					ErrSessionOut(id)
+				}
 				RunHello(id)
 			} else {
-				serv.sessions.Repository.UpdateUser(user, serv.sessions.Info.OKVEDsList)
+				err = serv.sessions.Repository.UpdateUser(user, serv.sessions.Info.OKVEDsList)
+				if err != nil {
+					ErrSessionOut(id)
+				}
 			}
 			break LOOPFOR
 		case "нет":
@@ -223,4 +231,17 @@ LOOPFOR:
 		}
 	}
 	StartChangeUserInfo(user, id, newuser)
+}
+
+func ErrSessionOut(id int64) {
+	var m models.Message
+	m.MessageText = `Система временно не работает. Проблемы на стороне сервера или идут плановые технические работы. Попобуйте позже.`
+	serv.sessions.Tgsend.Send.SendMessage(m, id)
+	serv.sessions.Del(id)
+}
+
+func ErrSessionAdd(id int64) {
+	var m models.Message
+	m.MessageText = `Система временно не работает. Проблемы на стороне сервера или идут плановые технические работы. Попобуйте позже.`
+	serv.sessions.Tgsend.Send.SendMessage(m, id)
 }

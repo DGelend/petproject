@@ -92,6 +92,7 @@ func (s *Sessions) Add(id int64) error {
 	olduser, err := s.Repository.Rep.LoadUser(&user, s.Info.OKVEDsList)
 	//olduser, user, err := checkUserId(id)
 	if err != nil {
+		TgSessions.log.Error("Ошибка при добавлении сесии", "err", err)
 		return err
 	}
 	ch := make(chan models.MessageResponse, 100)
