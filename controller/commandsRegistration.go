@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/mail"
+	"slices"
 
 	//"fmt"
 	//"log"
@@ -369,8 +370,9 @@ LOOPFOR:
 		switch strings.ToLower(u.MessageText) {
 		case "да":
 			o := regOkvedlistProcess(id)
-			OkvedList = append(OkvedList, o)
-			//sessions.sendchan <- msg
+			if !slices.Contains(OkvedList, o) {
+				OkvedList = append(OkvedList, o)
+			}
 			serv.sessions.Tgsend.Send.SendMessage(m, id)
 		case "нет":
 			break LOOPFOR
