@@ -137,6 +137,7 @@ LOOPFOR:
 				err = serv.sessions.Repository.SaveUser(user)
 				if err != nil {
 					ErrSessionOut(id)
+					return
 				}
 				RunHello(id)
 			} else {
@@ -144,6 +145,7 @@ LOOPFOR:
 				if err != nil {
 					ErrSessionOut(id)
 				}
+				EndOfProcedure(id)
 			}
 			break LOOPFOR
 		case "нет":
@@ -243,5 +245,11 @@ func ErrSessionOut(id int64) {
 func ErrSessionAdd(id int64) {
 	var m models.Message
 	m.MessageText = `Система временно не работает. Проблемы на стороне сервера или идут плановые технические работы. Попобуйте позже.`
+	serv.sessions.Tgsend.Send.SendMessage(m, id)
+}
+
+func EndOfProcedure(id int64) {
+	var m models.Message
+	m.MessageText = "Выполено!\n /help - Список всех команд"
 	serv.sessions.Tgsend.Send.SendMessage(m, id)
 }
